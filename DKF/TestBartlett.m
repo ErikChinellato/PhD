@@ -1,11 +1,11 @@
 function [CumulativePeriodogram,Freqs] = TestBartlett(Signal)
 %
-% test di Bartlett (o del periodogramma cumulato): serve per verificare se una sequenza è rumore bianco
+% test di Bartlett (o del periodogramma cumulato): serve per verificare se una sequenza Ã¨ rumore bianco
 %
 % Una sequenza x(k) generata da rumore bianco presenta una sequenza di autocorrelazione in cui tutti i
 % campioni per shift > 0 sono nulli. Quindi, osservare valori della sequenza di auto-correlazione
 % significativamente (in senso statistico) non-nulli corrisponde alla presenza di componenti
-% non-random nella sequenza x(k). Per individuare componenti periodiche mischiate al rumore è 
+% non-random nella sequenza x(k). Per individuare componenti periodiche mischiate al rumore Ã¨ 
 % vantaggioso considerare il "periodogramma cumulato":
 %
 
