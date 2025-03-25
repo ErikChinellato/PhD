@@ -3,7 +3,7 @@
 A (non-exhaustive) collection of programs I wrote during my PhD. Please consider citing this repository or the specific sources included in the following when using the provided code.
 
 
-• DKF - Deep Kalman Filter: A machine learning reinterpretation of the Kalman Filter based on the Deep Unfolding technique. Extends applicability of the Kalman Filter beyond traditional settings. Can be used to 1) perform state estimation, 2) fix mismatched model parameters and 3) discover unmodelled dynamics. An ad-hoc regularization process is employed to manage all components of the algorithm. Available in Python and MATLAB. CITE: (TBD). TODO: Add Test sample.
+• DKF - Deep Kalman Filter: A machine learning reinterpretation of the Kalman Filter based on the Deep Unfolding technique. Extends applicability of the Kalman Filter beyond traditional settings. Can be used to 1) perform state estimation, 2) fix mismatched model parameters and 3) discover unmodelled dynamics. An ad-hoc regularization process is employed to manage all components of the algorithm. Available in Python and MATLAB. CITE: https://doi.org/10.1016/j.jocs.2025.102569. TODO: Add Test sample.
 
 • DKSVD - Deep K-SVD: An unfolded version of ISTA for image denoising. Available in MATLAB. SOURCE: Deep K-SVD Denoising, https://arxiv.org/abs/1909.13164. 
 
