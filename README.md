@@ -9,7 +9,7 @@ A (non-exhaustive) collection of programs I wrote during my PhD. Please consider
 
 • DNMFD - Deep NMFD: An unfolded NMFD (Nonnegative Matrix Factor Deconvolution) algorithm for audio source separation and hit detection within general mixtures. Available in MATLAB. CITE: [🔗](TBD).
 
-• DKSVD - Deep K-SVD: An unfolded version of ISTA for image denoising. Available in MATLAB. SOURCE: [🔗](https://arxiv.org/abs/1909.13164). 
+• DKSVD - Deep K-SVD: An unfolded version of ISTA for image denoising. Available in MATLAB. SOURCE: [🔗](https://doi.org/10.1109/TIP.2021.3090531). 
 
 
 Copyright © 2025 Erik Chinellato
