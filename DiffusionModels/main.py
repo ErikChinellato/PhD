@@ -114,8 +114,8 @@ for step in range(NSteps):
 #Figure out if the network is training properly, try different architectures
 #Take a closer look at the Euler-Maruyama integrator: is it working as it should?
 
-#Assume an inaccurate predictor: on line 68 the particles are updated using an inaccurate predictor, 
-# but on line 85 we use the real, accurate one to generate the observations. What changes? Compute empirical mean and covariance of particles
+#Assume an inaccurate predictor: on line 75 the particles are updated using an inaccurate predictor, 
+# but on line 91 we use the real, accurate one to generate the observations. What changes? Compute empirical mean and covariance of particles
 # at each D.A. step and compare them in a case where the predictor is accurate vs inaccurate.
 
 
