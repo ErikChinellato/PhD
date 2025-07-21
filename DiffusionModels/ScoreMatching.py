@@ -3,7 +3,6 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from ScoreNetworkComponents import *
-import matplotlib.pyplot as plt
 
 class ScoreMatching():
     def __init__(self,Params,ScoreModelInit,training_data,test_data,Loss,batch_size=256,learning_rate=5e-3,epochs=100):
