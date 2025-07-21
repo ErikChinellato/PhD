@@ -22,7 +22,7 @@ class IntegrateSDE():
         ScoreModel.eval()
         with torch.no_grad():
             #We assume Particles.shape = (NumParticles, _)
-            if isinstance(X,tuple):
+            if isinstance(X,list):
                 Particles = X[0].clone()
                 Observations = X[1].clone()
                 NumParticles = X[0].shape[0]
@@ -32,7 +32,7 @@ class IntegrateSDE():
 
             TargetChannelNum = len(Particles.shape)
             AuxShape = list(Particles.shape)
-            AuxShape.append(self.N)
+            AuxShape.append(self.N+1)
             HistParticles = torch.zeros(AuxShape)
             HistParticles[...,0] = torch.clone(Particles)
 
@@ -49,14 +49,15 @@ class IntegrateSDE():
 
                 Z = torch.randn(Particles.shape)
 
-                NewParticles = Particles + xCoeff*Particles + scoreCoeff*ScoreModel(X,tLabels) + zCoeff*Z
+                NewParticles = Particles + xCoeff*Particles + scoreCoeff*ScoreModel(X,t) + zCoeff*Z
 
-                if isinstance(X,tuple):
-                    X = (NewParticles.detach().clone(),Observations)
+                if isinstance(X,list):
+                    X = [NewParticles.detach().clone(),Observations]
                 else:
                     X = NewParticles.detach().clone()
 
                 Particles = NewParticles.detach()
+                HistParticles[...,TimeInd+1] = Particles
 
                 if TimeInd % 10 == 0:
                     print(f"progress: step {TimeInd:>5d}/{self.N:>5d}")

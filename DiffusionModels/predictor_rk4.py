@@ -1,4 +1,5 @@
-import numpy as np
+#import numpy as np
+import torch
 
 def lorenz63_batch(states, t, sigma=10.0, rho=28.0, beta=8.0/3.0):
     x = states[:, 0]
@@ -9,7 +10,7 @@ def lorenz63_batch(states, t, sigma=10.0, rho=28.0, beta=8.0/3.0):
     dydt = x * (rho - z) - y
     dzdt = x * y - beta * z
 
-    return np.stack((dxdt, dydt, dzdt), axis=1)
+    return torch.cat((dxdt.unsqueeze(1), dydt.unsqueeze(1), dzdt.unsqueeze(1)), dim=1)
 
 def predict_rk4(particles, t, dt, deriv_func):
     k1 = deriv_func(particles, t)
@@ -19,17 +20,16 @@ def predict_rk4(particles, t, dt, deriv_func):
 
     return t+dt, particles + (dt / 6.0) * (k1 + 2*k2 + 2*k3 + k4)
 
+#particles = np.array([
+#    [1.0, 1.0, 1.0],
+#    [0.5, 0.5, 0.5],
+#    [2.0, 1.0, 0.0],
+#    [1.0, 2.0, 3.0],
+#    [5.0, 5.0, 5.0]
+#])
 
-particles = np.array([
-    [1.0, 1.0, 1.0],
-    [0.5, 0.5, 0.5],
-    [2.0, 1.0, 0.0],
-    [1.0, 2.0, 3.0],
-    [5.0, 5.0, 5.0]
-])
+#t = 0.0
+#dt = 0.01
 
-t = 0.0
-dt = 0.01
-
-next_particles = predict_rk4(particles, t, dt, lorenz63_batch)
-print(next_particles)
+#next_particles = predict_rk4(particles, t, dt, lorenz63_batch)
+#print(next_particles)

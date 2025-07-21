@@ -3,7 +3,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from ScoreNetworkComponents import *
-
+import matplotlib.pyplot as plt
 
 class ScoreMatching():
     def __init__(self,Params,ScoreModelInit,training_data,test_data,Loss,batch_size=256,learning_rate=5e-3,epochs=100):
@@ -51,7 +51,7 @@ class ScoreMatching():
             else:
                 X = mt*X + sigmat*Z
 
-            pred = self.ScoreModel(X,tLabels)
+            pred = self.ScoreModel(X,t)
             loss = self.Loss.ComputeLoss(pred,sigmat,Z)
 
             # Backpropagation
@@ -100,7 +100,7 @@ class ScoreMatching():
                 else:
                     X = mt*X + sigmat*Z
 
-                pred = self.ScoreModel(X,tLabels)
+                pred = self.ScoreModel(X,t)
                 test_loss += self.Loss.ComputeLoss(pred,sigmat,Z).item()
 
         test_loss /= num_batches
@@ -129,10 +129,38 @@ class DUMMYConditionalScoreNetwork1D(nn.Module):
 class ConditionalScoreNetwork1D(nn.Module):
     def __init__(self):
         super().__init__()
+        self.input_d = 10
+        self.middle_d = 50
+        self.output_d = 3
 
+        self.linear1 = nn.Sequential(
+            nn.Linear(in_features=self.input_d,out_features=self.middle_d),
+            nn.ReLU()
+        )
+        self.linear2 = nn.Sequential(
+            nn.Linear(in_features=self.middle_d,out_features=self.middle_d),
+            nn.ReLU()
+        )
+        self.linear3 = nn.Sequential(
+            nn.Linear(in_features=self.middle_d,out_features=self.middle_d),
+            nn.ReLU()
+        )
+        self.linear4 = nn.Sequential(
+            nn.Linear(in_features=self.middle_d,out_features=self.output_d),
+        )
 
     def forward(self,X,t):
-        pass
+        x = X[0].detach().clone()
+        y = X[1].detach().clone()
+        t_emb = torch.cat((t-0.5,torch.cos(2*torch.pi*t),torch.sin(2*torch.pi*t),-torch.cos(4*torch.pi*t)),dim=1)
+        Input = torch.cat((t_emb,y,x),dim=1)
+
+        Output = self.linear1(Input)
+        Output = self.linear2(Output)
+        Output = self.linear3(Output)
+        Output = self.linear4(Output)
+
+        return Output
 
 
 class ConditionalScoreNetwork2D(nn.Module):
