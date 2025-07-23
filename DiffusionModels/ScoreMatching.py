@@ -126,11 +126,11 @@ class DUMMYConditionalScoreNetwork1D(nn.Module):
 
 
 class ConditionalScoreNetwork1D(nn.Module):
-    def __init__(self):
+    def __init__(self,state_d,observation_d,temb_d):
         super().__init__()
-        self.input_d = 10
-        self.middle_d = 50
-        self.output_d = 3
+        self.input_d = state_d + observation_d + temb_d
+        self.middle_d = 5*self.input_d
+        self.output_d = state_d
 
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=self.input_d,out_features=self.middle_d),
