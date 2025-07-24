@@ -53,14 +53,14 @@ class ScoreMatching():
             pred = self.ScoreModel(X,t)
             loss = self.Loss.ComputeLoss(pred,sigmat,Z)
 
-            # Backpropagation
+            #Backpropagation
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.ScoreModel.parameters(), max_norm=1.0)
             self.optimizer.step()
             self.optimizer.zero_grad()
             #torch.save(self.ScoreModel, 'model.pth')
 
-            if batch % 2 == 0:
+            if batch % 10 == 0:
                 loss, current = loss.item(), batch * self.batch_size + tSamples
                 print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
                 torch.save(self.ScoreModel, 'model.pth')
