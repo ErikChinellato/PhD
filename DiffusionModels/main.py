@@ -66,6 +66,7 @@ R_sqrt = std_R*torch.eye(observation_d)
 
 #Initial population
 TrueState = InitialVector.detach().clone().unsqueeze(0)
+NoisyState = InitialVector.detach().clone() + torch.randn((1,state_d))@( P_sqrt.t() )
 Particles = InitialVector + torch.randn((Batch,state_d))@( P_sqrt.t() )
 
 #Integration params
@@ -117,8 +118,11 @@ for step in range(NSteps):
     #NEW OBSERVATION ARRIVES (from PDE/ODE solver!)
     _, TrueState = predict_rk4(TrueState, t, dt, lorenz63_batch)
     TrueTrajectory[step,:] = TrueState
-    TrueState = TrueState + torch.randn((1,state_d))@( Q_sqrt.t() ) #Add model noise
-    NewObservation = TrueState@( C.t() )
+
+    _, NoisyState = predict_rk4(NoisyState, t, dt, lorenz63_batch)
+    NoisyState = NoisyState + torch.randn((1,state_d))@( Q_sqrt.t() ) #Add model noise
+    TrueTrajectory[step,:] = TrueState
+    NewObservation = NoisyState@( C.t() )
     NewObservation = NewObservation + torch.randn((1,observation_d))@( R_sqrt.t() ) #Add measurement noise
 
     #Resample particles as gaussian noise and evolve them using the SDE
@@ -141,7 +145,7 @@ for step in range(NSteps):
         plt.pause(0.01)
         plt.clf()
         ax = fig.add_subplot(title=f"Step: {step:>3d}")
-
+    
         ax.scatter(*(ParticlesOld[:,Slice].t()),color='red',marker=".",alpha=0.5,label='Old particles') #Before data assimilation
         ax.scatter(*(ParticlesPredicted[:,Slice].t()),color='orange',marker=".",alpha=0.5,label='After predictor') #After predictor
         ax.scatter(*(ParticlesNew[:,Slice].t()),color='green',marker=".",alpha=0.5,label='After D.A.') #After data assimilation
@@ -154,6 +158,9 @@ for step in range(NSteps):
         plt.gca().add_artist(PlotLegend)
         ax.add_artist(Ellipsoid)
         plt.legend([Ellipsoid], [str(100 * Confidence) + "% " + "confidence"],loc="upper right")
+        ax.axis('equal')
+        ax.set_axisbelow(True)
+        ax.grid(color='gray',linestyle='dashed',alpha=0.5)
         plt.draw()
         plt.pause(0.01)
 
