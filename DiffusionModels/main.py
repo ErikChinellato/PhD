@@ -88,8 +88,8 @@ Integrate = IntegrateSDE(Params)
 Loss = ScoreLoss()
 
 #Warmstart training
-if os.path.isfile('model_warmstart.pth'):
-    ScoreModelInit = torch.load('model_warmstart.pth', weights_only=False)
+if os.path.isfile(os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart.pth'):
+    ScoreModelInit = torch.load(os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart.pth', weights_only=False)
 else:
     ScoreModelInit = ConditionalScoreNetwork1D(state_d=state_d,observation_d=observation_d,temb_d=4)
 
@@ -190,7 +190,7 @@ plt.show()
 # at each D.A. step and compare them in a case where the predictor is accurate vs inaccurate.
 
 
-#Code a way to display the mean particle at each stem w/ covariance @ 1 std (some kind of uncertainty quantification) (!) (E)
+#Code a way to display the mean particle at each step w/ covariance @ 1 std (some kind of uncertainty quantification) (!) (E)
 
 #Experiments to try
 #What happens when we increase noise levels? (Empirical covariance matrices at each DA step) (D)

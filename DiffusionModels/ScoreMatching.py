@@ -3,6 +3,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from ScoreNetworkComponents import *
+import os.path
 
 class ScoreMatching():
     def __init__(self,Params,ScoreModelInit,training_data,test_data,Loss,batch_size=256,learning_rate=5e-3,epochs=100):
@@ -63,7 +64,7 @@ class ScoreMatching():
             if batch % 10 == 0:
                 loss, current = loss.item(), batch * self.batch_size + tSamples
                 print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
-                torch.save(self.ScoreModel, 'model.pth')
+                torch.save(self.ScoreModel, os.path.dirname(os.path.abspath(__file__)) + '/Models/model.pth')
 
     def TestLoop(self):
         # Set the model to evaluation mode - important for batch normalization and dropout layers
