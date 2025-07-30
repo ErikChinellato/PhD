@@ -45,7 +45,7 @@ TruePredictor = Predictors(state_d=state_d,dt=dt,std_Q=std_Q,VectorFieldClass=Tr
 ApproxVectorField = Lorenz63(eps=0)
 ApproxPredictor = Predictors(state_d=state_d,dt=dt,std_Q=std_Q,VectorFieldClass=ApproxVectorField,method='rk4')
 
-Observer = Observers(default_d=state_d,std_R=std_R,method='id')
+Observer = Observers(default_d=state_d,std_R=std_R,method='projection',slice=[1,2])
 observation_d = Observer.get_dimension()
 
 #Plot containers & related params
@@ -57,12 +57,31 @@ Slice = [0,1] #x,y
 ShowSteps = True
 
 #Setup score model
-if os.path.isfile(os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart_linear.pth'): #Warmstart training
-    ScoreModelInit = torch.load(os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart_linear.pth', weights_only=False)
+Warmstart = True
+Loss = ScoreLoss()
+
+if Warmstart:
+    if os.path.isfile(os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart.pth'):
+        ScoreModelInit = torch.load(os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart.pth', weights_only=False)
+    else:
+        ScoreModelInit = ConditionalScoreNetwork1D(state_d=state_d,observation_d=observation_d,temb_d=4)
+
+        WarmstartBatch = 10000
+        WarmstartTrainSplit = round(WarmstartBatch*TrainPerc)
+        WarmstartRange = [-20,20]
+        
+        WarmstartParticles = (WarmstartRange[1]-WarmstartRange[0])*torch.rand(WarmstartBatch,state_d)+WarmstartRange[0]
+        WarmstartObservations = Observer.forward(WarmstartParticles,AddNoise=True)
+        training_data = ConditionalDiffusionDataset1D(WarmstartParticles[0:WarmstartTrainSplit,...],WarmstartObservations[0:WarmstartTrainSplit,...])
+        test_data = ConditionalDiffusionDataset1D(WarmstartParticles[WarmstartTrainSplit:,...],WarmstartObservations[WarmstartTrainSplit:,...])
+
+        Score = ScoreMatching(Params,ScoreModelInit,training_data,test_data,Loss,batch_size=256,learning_rate=1e-3,epochs=5000)
+        Score.Train()
+        ScoreModelInit = Score.ScoreModel
+        torch.save(ScoreModelInit, os.path.dirname(os.path.abspath(__file__)) + '/Models/model_warmstart.pth')
 else:
     ScoreModelInit = ConditionalScoreNetwork1D(state_d=state_d,observation_d=observation_d,temb_d=4)
 
-Loss = ScoreLoss()
 
 #Begin Data Assimilation
 for step in range(NSteps):
