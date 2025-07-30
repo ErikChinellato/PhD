@@ -37,8 +37,8 @@ Params = Parameters(dt=0.01)
 Integrate = IntegrateSDE(Params)
 
 #Setup predictors and observers
-std_Q = 0.05
-std_R = 0.05
+std_Q = 0.
+std_R = 0.
 
 TrueVectorField = Lorenz63(eps=1e-2)
 TruePredictor = Predictors(state_d=state_d,dt=dt,std_Q=std_Q,VectorFieldClass=TrueVectorField,method='dopri5')
@@ -101,8 +101,6 @@ for step in range(NSteps):
 
     #Assemble empirical mean and covariance
     EmpiricalMean[step,:], EmpiricalCovariance[step,:,:] = ComputeMeanAndCov(Particles)
-    print(EmpiricalCovariance[step,:,:])
-    print(EmpiricalCovariance[step][np.ix_(Slice, Slice)])
     Ellipsoid = GetCovEllipsoid(EmpiricalMean[step,Slice],EmpiricalCovariance[step][np.ix_(Slice, Slice)],Confidence)
 
     if ShowSteps:
