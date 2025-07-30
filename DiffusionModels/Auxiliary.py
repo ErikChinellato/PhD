@@ -2,6 +2,7 @@ import torch
 from matplotlib import patches
 import numpy as np
 from scipy.stats import chi2
+import time
 
 def ComputeMeanAndCov(Particles):
     Mean = torch.mean(Particles,dim=0)
@@ -21,7 +22,7 @@ def GetCovEllipsoid(Mean,Cov,Confidence):
             (Mean[0], Mean[1]),
             2.0 * np.sqrt(scale * L[j_max]),
             2.0 * np.sqrt(scale * L[j_min]),
-            angle=np.arctan2(V[j_max, 1], V[j_max, 0]) * 180 / np.pi,
+            angle=np.arctan2(V[1,j_max],V[0,j_max]) * 180 / np.pi,
             alpha=0.1,
             color="magenta",
         )
