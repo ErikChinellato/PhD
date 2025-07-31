@@ -105,7 +105,7 @@ class Predictors():
         return t+self.dt, pred
 
     def explicit_euler(self,t,particles):
-        pred = particles + self.dt * self.VectorField(particles, t)
+        pred = particles + self.dt * self.VectorField(t, particles)
         return t+self.dt, pred
 
     def dopri5(self,t,particles): #solver only supports batches of size 1, must iterate over batch with for loop
@@ -152,7 +152,7 @@ class VectorField():
         pass #Global methods and options to be inherited go here, not needed atm
 
 class Lorenz63(VectorField):
-    def __init__(self,sigma=10.0,rho=28.0,beta=8.0/3.0,eps=0,vel=[10,10,10]):
+    def __init__(self,sigma=10.0,rho=28.0,beta=8.0/3.0,eps=0,vel=[20,20,20]):
         super().__init__()
         self.sigma = sigma
         self.rho = rho

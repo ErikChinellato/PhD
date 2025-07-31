@@ -17,7 +17,7 @@ class ScoreMatching():
         self.test_dataloader = DataLoader(test_data,batch_size=self.batch_size)
         self.Loss = Loss
         self.learning_rate = learning_rate
-        self.optimizer = torch.optim.Adam(self.ScoreModel.parameters(), lr=self.learning_rate, betas=(0.9,0.999), eps = 1e-8)
+        self.optimizer = torch.optim.Adam(self.ScoreModel.parameters(),lr=self.learning_rate,betas=(0.9,0.999),eps = 1e-8)
         self.epochs = epochs
         
     def TrainLoop(self):
@@ -56,7 +56,7 @@ class ScoreMatching():
 
             #Backpropagation
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.ScoreModel.parameters(), max_norm=1.0)
+            torch.nn.utils.clip_grad_norm_(self.ScoreModel.parameters(),max_norm=1.0)
             self.optimizer.step()
             self.optimizer.zero_grad()
             #torch.save(self.ScoreModel, 'model.pth')
@@ -114,18 +114,6 @@ class ScoreMatching():
         print("Done!\n")
 
 
-class DUMMYConditionalScoreNetwork1D(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.linear = nn.Linear(in_features=8,out_features=8)
-
-    def forward(self,X,t):
-        x = X[0].detach().clone() #Particles, dim = (Batch, Particles_dim)
-        y = X[1].detach().clone() #Observations, dim = (Batch, Observations_dim)
-        x = self.linear(x)
-        return x
-
-
 class ConditionalScoreNetwork1D(nn.Module):
     def __init__(self,state_d,observation_d,temb_d):
         super().__init__()
@@ -135,7 +123,7 @@ class ConditionalScoreNetwork1D(nn.Module):
 
         self.linear1 = nn.Sequential(
             nn.Linear(in_features=self.input_d,out_features=self.middle_d),
-            nn.ReLU()
+            nn.ReLU()#try silu
         )
         self.linear2 = nn.Sequential(
             nn.Linear(in_features=self.middle_d,out_features=self.middle_d),
@@ -146,6 +134,10 @@ class ConditionalScoreNetwork1D(nn.Module):
             nn.ReLU()
         )
         self.linear4 = nn.Sequential(
+            nn.Linear(in_features=self.middle_d,out_features=self.middle_d),
+            nn.ReLU()
+        )
+        self.linear5 = nn.Sequential(
             nn.Linear(in_features=self.middle_d,out_features=self.output_d),
         )
 
@@ -159,6 +151,7 @@ class ConditionalScoreNetwork1D(nn.Module):
         Output = self.linear2(Output)
         Output = self.linear3(Output)
         Output = self.linear4(Output)
+        Output = self.linear5(Output)
 
         return Output
 
