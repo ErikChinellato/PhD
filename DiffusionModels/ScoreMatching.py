@@ -17,7 +17,7 @@ class ScoreMatching():
         self.test_dataloader = DataLoader(test_data,batch_size=self.batch_size)
         self.Loss = Loss
         self.learning_rate = learning_rate
-        self.optimizer = torch.optim.Adam(self.ScoreModel.parameters(),lr=self.learning_rate,betas=(0.9,0.999),eps = 1e-8)
+        self.optimizer = torch.optim.Adam(self.ScoreModel.parameters(),lr=self.learning_rate,betas=(0.9,0.999),eps=1e-8)
         self.epochs = epochs
         
     def TrainLoop(self):

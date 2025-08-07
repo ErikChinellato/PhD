@@ -9,6 +9,7 @@ from ModelComponents import *
 
 import matplotlib.pyplot as plt
 import os.path
+import scipy.io as sio
 
 #DATA ASSIMILATION IN TIME
 
@@ -23,10 +24,6 @@ state_d = InitialVector.shape[0]
 std_P = 0.05
 P_sqrt = std_P*torch.eye(state_d)
 
-TrueState = InitialVector.detach().clone().unsqueeze(0) #Used as a reference
-NoisyState = InitialVector.detach().clone() + torch.randn((1,state_d))@( P_sqrt.t() ) #Used to generate measurements for D.A. at each time-step
-Particles = InitialVector + torch.randn((Batch,state_d))@( P_sqrt.t() )
-
 #D.A. integration params
 NSteps = 100
 dt = 0.001
@@ -39,9 +36,14 @@ Integrate = IntegrateSDE(Params)
 std_Q_Vals = [0.,0.15,0.3]
 std_R_Vals = [0.,1./3.,2./3.,1.]
 
-for ParticleInd in range(20,31):
+for ParticleInd in range(11,15):
     for IndQ in range(len(std_Q_Vals)):
         for IndR in range(len(std_R_Vals)):
+            TrueState = InitialVector.detach().clone().unsqueeze(0) #Used as a reference
+            NoisyState = InitialVector.detach().clone() + torch.randn((1,state_d))@( P_sqrt.t() ) #Used to generate measurements for D.A. at each time-step
+            Particles = InitialVector + torch.randn((Batch,state_d))@( P_sqrt.t() )
+
+            Meas = torch.tensor(sio.loadmat("DiffusionModels/Meas_"+str(IndQ)+"_"+str(IndR)+".mat")['Meas'][:,1:],dtype=torch.float).transpose(0,1)
 
             #Setup predictors and observers
             std_Q = std_Q_Vals[IndQ]
@@ -81,14 +83,18 @@ for ParticleInd in range(20,31):
                     WarmstartRange = [-20,20]
                     
                     WarmstartParticles = 40*torch.rand(WarmstartBatch,state_d) + torch.tensor([-20,-20,0])
-                    WarmstartObservations = Observer.forward(WarmstartParticles,AddNoise=True)
+
+                    _, WarmstartParticlesTmp = ApproxPredictor.forward(0,WarmstartParticles,AddNoise=True)
+                    WarmstartObservations = Observer.forward(WarmstartParticlesTmp,AddNoise=True)
+                    _, WarmstartParticles = ApproxPredictor.forward(0,WarmstartParticles,AddNoise=True)
+
                     training_data = ConditionalDiffusionDataset1D(WarmstartParticles[0:WarmstartTrainSplit,...],WarmstartObservations[0:WarmstartTrainSplit,...])
                     test_data = ConditionalDiffusionDataset1D(WarmstartParticles[WarmstartTrainSplit:,...],WarmstartObservations[WarmstartTrainSplit:,...])
 
                     Score = ScoreMatching(Params,ScoreModelInit,training_data,test_data,Loss,batch_size=256,learning_rate=1e-3,epochs=500)
                     Score.Train()
                     ScoreModelInit = Score.ScoreModel
-                    torch.save(ScoreModelInit, os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart.pth')
+                    torch.save(ScoreModelInit,os.path.dirname(os.path.abspath(__file__))+'/Models/model_warmstart.pth')
             else:
                 ScoreModelInit = ConditionalScoreNetwork1D(state_d=state_d,observation_d=observation_d,temb_d=4)
 
@@ -98,9 +104,10 @@ for ParticleInd in range(20,31):
                 ParticlesOld = Particles.clone() #Save particles before data assimilation
 
                 #Update particles with forward mechanics and collect observations
-                t, Particles = ApproxPredictor.forward(t,Particles,AddNoise=True)
-                Observations = Observer.forward(Particles,AddNoise=True)
+                _, ParticlesTmp = ApproxPredictor.forward(t,Particles,AddNoise=True)
+                Observations = Observer.forward(ParticlesTmp,AddNoise=True)
 
+                _, Particles = ApproxPredictor.forward(t,Particles)
                 ParticlesPredicted = Particles.clone() #Save particles after predictor
 
                 #Create train and test datasets
@@ -116,9 +123,10 @@ for ParticleInd in range(20,31):
                 _, TrueState = TruePredictor.forward(t,TrueState)
                 TrueTrajectory[step,:] = TrueState
 
-                _, NoisyState = TruePredictor.forward(t,NoisyState,AddNoise=True)
+                t, NoisyState = TruePredictor.forward(t,NoisyState,AddNoise=True)
                 NewObservation = Observer.forward(NoisyState,AddNoise=True)
-
+                NewObservation = Meas[step,:].unsqueeze(0)#Overwrite measurement for comparison
+                
                 #Resample particles as gaussian noise and evolve them using the SDE
                 sigmaT = Params.m_sigma(Params.T*torch.ones((1,1)))[1]
                 Particles = sigmaT*torch.randn((Batch,state_d))
@@ -160,6 +168,9 @@ for ParticleInd in range(20,31):
 
             if ShowOutput:
                 fig = plt.figure(2)
+                plt.draw()
+                plt.pause(0.01)
+                plt.clf()
                 ax = fig.add_subplot(projection='3d',title="Trajectory + Uncertainty Quantification")
                 ax.plot(*(EmpiricalMean.t()),color="magenta",label='Empirical Mean')
                 ax.plot(*(TrueTrajectory.t()),color="black",label='True Trajectory')
@@ -168,13 +179,14 @@ for ParticleInd in range(20,31):
                     Ellipsoid = GetCovEllipsoid(EmpiricalMean[step,:],EmpiricalCovariance[step,:,:],Confidence)
                     ax.plot_surface(*Ellipsoid,rstride=4,cstride=4,color='magenta',alpha=0.1)
                 ax.axis('equal')
-                plt.show()
+                plt.draw()
+                plt.pause(0.01)
 
-            torch.save(EmpiricalMean,'EmpMean_'+str(IndQ)+'_'+str(IndR)+'_'+str(ParticleInd)+'.pt')
-            torch.save(EmpiricalCovariance,'EmpCov_'+str(IndQ)+'_'+str(IndR)+'_'+str(ParticleInd)+'.pt')
+            torch.save(EmpiricalMean,'DiffusionModels/DiffModels_Accurate/EmpMean_'+str(IndQ)+'_'+str(IndR)+'_'+str(ParticleInd)+'.pt')
+            torch.save(EmpiricalCovariance,'DiffusionModels/DiffModels_Accurate/EmpCov_'+str(IndQ)+'_'+str(IndR)+'_'+str(ParticleInd)+'.pt')
 
 
-torch.save(TrueTrajectory,'TrueTraj.pt')
+#torch.save(TrueTrajectory,'TrueTraj.pt')
 
 #TODO LIST
 #Numerical integrator for lorenz63 (DONE)
