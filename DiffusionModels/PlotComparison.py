@@ -7,10 +7,10 @@ import scipy.io as sio
 
 TrueTraj = torch.load("DiffusionModels/Data/TrueTraj.pt", weights_only=True)
 
-Folders = ["DKF_Accurate", "DKF_Learned", "DiffModels_Inaccurate", "DiffModels_Accurate"] #["DKF_Accurate", "DKF_Learned", "DiffModels_Inaccurate", "DiffModels_Accurate", "EnKF_Inaccurate", "EnKF_Accurate"]
+Folders = ["DKF_Learned", "DKF_Accurate", "DiffModels_Inaccurate", "DiffModels_Accurate", "EnKF_Inaccurate", "EnKF_Accurate"]
 
 
-TrajNum = 5
+TrajNum = 15
 StatesNum = 100
 std_Q_Vals = [0.,0.15,0.3]
 std_R_Vals = [0.,1./3.,2./3.,1.]
@@ -44,9 +44,9 @@ for IndFolder in range(len(Folders)):
             RMSE[IndFolder,IndQ,IndR,:] = ErrorSq
 
 
-ShowIndFolders = [0,1,2,3] #[0,1,2,3,4,5]
-ShowIndQ = 0
-ShowIndR = 0
+ShowIndFolders = [0,1,2,3,4,5]
+ShowIndQ = 2
+ShowIndR = 2
 
 plt.figure(1)
 plt.title(f"RMSE over time-step: std_Q = {std_Q_Vals[ShowIndQ]:>2f}, std_R = {std_R_Vals[ShowIndR]:>2f}")
@@ -55,10 +55,10 @@ for ShowIndFolder in ShowIndFolders:
 plt.legend()
 plt.xlabel("time-step")
 plt.ylabel("RMSE")
-plt.ylim((0,4))
+#plt.ylim((0,4))
 plt.draw()
 
-ShowIndQ = 0
+ShowIndQ = 2
 plt.figure(2)
 plt.title(f"Mean RMSE over noise level: std_Q = {std_Q_Vals[ShowIndQ]:>2f}")
 for ShowIndFolder in ShowIndFolders:
@@ -66,10 +66,10 @@ for ShowIndFolder in ShowIndFolders:
 plt.legend()
 plt.xlabel("std_R")
 plt.ylabel("Mean RMSE")
-plt.ylim((0,1.5))
+#plt.ylim((0,1.5))
 plt.draw()
 
-ShowIndR = 0
+ShowIndR = 3
 plt.figure(3)
 plt.title(f"Mean RMSE over noise level: std_R = {std_R_Vals[ShowIndR]:>2f}")
 for ShowIndFolder in ShowIndFolders:
@@ -77,5 +77,5 @@ for ShowIndFolder in ShowIndFolders:
 plt.legend()
 plt.xlabel("std_Q")
 plt.ylabel("Mean RMSE")
-plt.ylim((0,1.5))
+#plt.ylim((0,1.5))
 plt.show()
