@@ -12,6 +12,9 @@ A (non-exhaustive) collection of programs I wrote during my PhD (Supervisor: Fab
   - **<ins>E. Chinellato</ins>** and F. Marcuzzi, “_Deep Unfolding for Scientific Computing on Embedded Systems_”, Accepted, (2025). [🔗]
 - **DKSVD** - Deep K-SVD: An unfolded version of ISTA for image denoising. Available in MATLAB.
   - M. Scetbon, M. Elad and P. Milanfar, “_Deep K-SVD Denoising_“, in IEEE Transactions on Image Processing (2021). [🔗](https://doi.org/10.1109/TIP.2021.3090531)
+- **DiffusionModels** - Diffusion Models: A framework that implements (un)conditional diffusion models to perform data assimilation and compares the results with other traditional methods (EnKF, DKF). Available in Python. Collaborator: David Hernandez (GitHub: david-hrnndz, Mail: david.hernandez@studenti.unipd.it).
+  - A. Dasgupta et al., "_Unifying and extending Diffusion Models through PDEs for solving Inverse Problems_", ArXiv (2025). [🔗](https://arxiv.org/abs/2504.07437)
+    
 
 
 Copyright © 2025 Erik Chinellato
