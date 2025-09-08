@@ -1,5 +1,7 @@
 # PhD
+
 <div align="justify">
+  
 A (non-exhaustive) collection of programs I wrote during my PhD (Supervisor: Fabio Marcuzzi). Please consider citing these repositories [[1](https://github.com/ErikChinellato),[2](https://github.com/NLALDlab)] or the specific sources included in the following when using the provided code.
 
 - **DKF** - Deep Kalman Filter: A machine learning reinterpretation of the Kalman Filter based on the Deep Unfolding technique. Extends applicability of the Kalman Filter beyond traditional settings. Can be used to 1) perform state estimation, 2) fix mismatched model parameters and 3) discover unmodelled dynamics. An ad-hoc regularization process is employed to manage all components of the algorithm. Available in Python and MATLAB. 
@@ -16,6 +18,5 @@ A (non-exhaustive) collection of programs I wrote during my PhD (Supervisor: Fab
   - A. Dasgupta et al., "_Unifying and extending Diffusion Models through PDEs for solving Inverse Problems_", ArXiv (2025). [🔗](https://arxiv.org/abs/2504.07437)
     
 
-<\div>
 Copyright © 2025 Erik Chinellato
 
